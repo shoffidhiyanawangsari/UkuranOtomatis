@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Ukuran Baju</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Tombol musik elegan */
+        #musik-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            border: none;
+            padding: 10px 14px;
+            border-radius: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================
+       AUDIO BACKGROUND (baru)
+=============================== -->
+<audio id="bgm" autoplay loop>
+    <source src="properti/lagu.mpeg" type="audio/mpeg">
+</audio>
+
+<button id="musik-toggle">🔊</button>
+
+<script>
+    const bgm = document.getElementById("bgm");
+    const tombol = document.getElementById("musik-toggle");
+
+    bgm.volume = 0.35;
+
+    // Autoplay jika diizinkan
+    bgm.play().catch(() => {
+        // Jika autoplay diblokir, jalankan saat klik pertama
+        document.addEventListener("click", () => bgm.play(), { once: true });
+    });
+
+    // Tombol mute
+    tombol.addEventListener("click", () => {
+        if (bgm.muted) {
+            bgm.muted = false;
+            tombol.textContent = "🔊";
+        } else {
+            bgm.muted = true;
+            tombol.textContent = "🔈";
+        }
+    });
+</script>
+
+<!-- ============================
+       STEP 0 — WELCOME
+=============================== -->
+<div class="step" id="step0" style="display:block;">
+    <h2 class="section-title">Selamat Datang</h2>
+    <p style="text-align:center; margin-bottom:20px;">
+        Aplikasi ini membantu menentukan ukuran kaos, hoodie, dan kemeja
+        berdasarkan tinggi badan, berat badan, lingkar dada, dan lebar bahu.
+    </p>
+
+    <button class="btn-oval-small" onclick="nextStep(1)">Mulai</button>
+</div>
+
+<!-- Input yang disembunyikan -->
+<input type="hidden" id="gender">
+<input type="hidden" id="jenis">
+
+<!-- ============================
+       STEP 1 — PILIH GENDER
+=============================== -->
+<div class="step" id="step1" style="display:none;">
+    <h2 class="section-title">Pilih Gender</h2>
+
+    <button class="gender-btn" onclick="pilihGender('L')">Laki-laki</button>
+    <button class="gender-btn" onclick="pilihGender('P')">Perempuan</button>
+
+    <button class="btn-oval-small" onclick="prevStep(0)">Kembali</button>
+</div>
+
+<!-- ============================
+       STEP 2 — PILIH JENIS BAJU
+=============================== -->
+<div class="step" id="step2" style="display:none;">
+    <h2 class="section-title">Pilih Jenis Baju</h2>
+
+    <button class="jenis-btn" onclick="pilihJenis('kaos')">Kaos</button>
+    <button class="jenis-btn" onclick="pilihJenis('hoodie')">Hoodie</button>
+    <button class="jenis-btn" onclick="pilihJenis('kemeja')">Kemeja</button>
+
+    <button class="btn-oval-small" onclick="prevStep(1)">Kembali</button>
+</div>
+
+<!-- ============================
+       STEP 3 — ISI DATA TUBUH
+=============================== -->
+<div class="step" id="step3" style="display:none;">
+    <h2 class="section-title">Isi Data Tubuh</h2>
+
+    <div id="inputContainer"></div>
+
+    <button class="btn-oval-small" onclick="App.hitung()">Hitung Ukuran</button>
+    <button class="btn-oval-small btn-oval-dark" onclick="prevStep(2)">Kembali</button>
+</div>
+
+<!-- ============================
+       STEP 4 — HASIL
+=============================== -->
+<div class="step" id="step4" style="display:none;">
+    <h2 class="section-title">Hasil Ukuran Anda</h2>
+
+    <div id="hasilAkhir" class="hasil-box"></div>
+
+    <img id="gambarBaju"
+         src=""
+         style="width:100%; max-width:250px; display:none; border-radius:12px; margin-top:15px;">
+
+    <div id="hasilDeskripsi"
+         style="margin-top:15px; text-align:left; font-size:15px;">
+    </div>
+
+    <button class="btn-oval-small btn-oval-dark" onclick="prevStep(3)">Kembali</button>
+    <button class="btn-oval-small" onclick="nextStep(0)">Selesai</button>
+</div>
+
+<!-- ============================
+       SCRIPT
+=============================== -->
+<script type="module" src="js/App.js"></script>
+
+<script>
+    function nextStep(n) {
+        document.querySelectorAll(".step").forEach(s => s.style.display = "none");
+        document.getElementById("step" + n).style.display = "block";
+    }
+
+    function prevStep(n) {
+        nextStep(n);
+    }
+
+    window.pilihGender = function(g) {
+        document.getElementById("gender").value = g;
+        nextStep(2);
+    };
+
+    window.pilihJenis = function(j) {
+        document.getElementById("jenis").value = j;
+        nextStep(3);
+
+        const box = document.getElementById("inputContainer");
+        box.innerHTML = "";
+
+        if (j === "kemeja") {
+            box.innerHTML = `
+                <input id="tb" class="input-box" placeholder="Tinggi Badan (cm)" type="number">
+                <input id="bb" class="input-box" placeholder="Berat Badan (kg)" type="number">
+                <input id="lingkarDada" class="input-box" placeholder="Lingkar Dada (cm)" type="number">
+                <input id="lebarBahu" class="input-box" placeholder="Lebar Bahu (cm)" type="number">
+            `;
+        } else {
+            box.innerHTML = `
+                <input id="tb" class="input-box" placeholder="Tinggi Badan (cm)" type="number">
+                <input id="bb" class="input-box" placeholder="Berat Badan (kg)" type="number">
+            `;
+        }
+    };
+</script>
+
+</body>
+</html>
